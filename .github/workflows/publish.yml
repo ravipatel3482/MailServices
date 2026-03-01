@@ -1,0 +1,37 @@
+name: Publish NuGet package
+
+on:
+  push:
+    branches: [ 'master' ]
+  workflow_dispatch: {}
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore -c Release
+
+      - name: Pack
+        run: |
+          mkdir -p ./artifacts
+          dotnet pack -c Release --no-build -o ./artifacts
+
+      - name: Publish to NuGet
+        env:
+          NUGET_API_KEY: ${{ secrets.MAILSERVICES_PUBLISH_KEY }}
+        run: |
+          echo "Found packages:"
+          ls -la ./artifacts || true
+          dotnet nuget push "./artifacts/*.nupkg" -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
