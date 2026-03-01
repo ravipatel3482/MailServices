@@ -1,0 +1,55 @@
+name: Publish .NET package
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          # GITHUB_REF contains ref like refs/tags/v1.2.3
+          REF=${GITHUB_REF#refs/tags/}
+          VERSION=${REF#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Pack
+        run: |
+          dotnet pack "MailServices/MailServices.csproj" -c Release -o ./artifacts --no-build /p:PackageVersion=${{ steps.get_version.outputs.version }}
+
+      - name: Push package to NuGet.org
+        if: secrets.MailServices_Publish_Key != ''
+        env:
+          NUGET_API_KEY: ${{ secrets.MailServices_Publish_Key }}
+        run: |
+          dotnet nuget push ./artifacts/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Publish package to GitHub Packages
+        if: secrets.GITHUB_TOKEN != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Configure a temporary NuGet source for GitHub Packages and push
+          dotnet nuget add source --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --username ${{ github.repository_owner }} --password $GITHUB_TOKEN --store-password-in-clear-text || true
+          dotnet nuget push ./artifacts/*.nupkg --api-key $GITHUB_TOKEN --source github --skip-duplicate

@@ -10,9 +10,9 @@
 	<Company>XYZ</Company>
 	<Description>Simple SMTP Mail Service for ASP.NET Core</Description>
 	<PackageTags>smtp email dotnet aspnetcore</PackageTags>
-	<RepositoryUrl>https://github.com/Raviniki/MailServices</RepositoryUrl>
+	<RepositoryUrl>https://github.com/ravipatel3482/MailServices</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
-	<PackageProjectUrl>https://github.com/Raviniki/MailServices</PackageProjectUrl>
+	<PackageProjectUrl>https://github.com/ravipatel3482/MailServices</PackageProjectUrl>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
