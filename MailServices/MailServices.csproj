@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<PackageId>EMail_Services</PackageId>
-	<Version>1.0.0</Version>
+	<Version>1.0.1</Version>
 	<Authors>Ravindra Patel</Authors>
 	<Company>XYZ</Company>
 	<Description>Simple SMTP Mail Service for ASP.NET Core</Description>
